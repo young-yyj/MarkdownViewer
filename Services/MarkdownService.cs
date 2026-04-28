@@ -21,8 +21,10 @@ public class MarkdownService
         return (html, headings);
     }
 
-    public string BuildFullHtml(string bodyHtml, string css)
+    public string BuildFullHtml(string bodyHtml, bool isDark)
     {
+        var css = LoadCss(isDark ? "MarkdownViewer.Resources.markdown-styles-dark.css"
+                                 : "MarkdownViewer.Resources.markdown-styles-light.css");
         return $@"<!DOCTYPE html>
 <html lang=""en"">
 <head>
@@ -106,5 +108,14 @@ public class MarkdownService
         while (existing.Any(h => h.id == id))
             id = $"{original}-{suffix++}";
         return id;
+    }
+
+    private static string LoadCss(string resourceName)
+    {
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream == null) return string.Empty;
+        using var reader = new System.IO.StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }
