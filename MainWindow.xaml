@@ -10,7 +10,8 @@
         Height="700" Width="1100"
         MinHeight="500" MinWidth="800"
         Background="#1e1e1e"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        AllowDrop="True">
 
     <Window.DataContext>
         <vm:MainViewModel/>
