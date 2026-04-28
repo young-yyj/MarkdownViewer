@@ -95,15 +95,17 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                             VerticalAlignment="Center">
                     <Button Command="{Binding ToggleThemeCommand}"
-                            Background="Transparent" BorderThickness="0"
-                            Padding="6,4" Cursor="Hand" FontSize="13"
+                            Background="{DynamicResource AccentBrush}"
+                            BorderThickness="0"
+                            Padding="8,4" Cursor="Hand" FontSize="13"
                             ToolTip="{Binding ThemeTooltip}">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="4"/>
                             </Style>
                         </Button.Resources>
-                        <TextBlock Text="{Binding ThemeIcon}"/>
+                        <TextBlock Text="{Binding ThemeIcon}"
+                                   Foreground="White"/>
                     </Button>
                     <TextBlock Text="{Binding StatusText}"
                                Foreground="{DynamicResource TextDimmed}" FontSize="11"

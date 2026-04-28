@@ -25,7 +25,34 @@ public class MainViewModel : ObservableObject
         ClearRecentFilesCommand = new RelayCommand(ClearRecentFiles);
         ToggleThemeCommand = new RelayCommand(ToggleTheme);
 
+        _isDarkMode = LoadInitialTheme();
         LoadRecentFiles();
+    }
+
+    private static bool LoadInitialTheme()
+    {
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var path = Path.Combine(appData, "MarkdownViewer", "settings.json");
+        if (File.Exists(path))
+        {
+            try
+            {
+                var json = File.ReadAllText(path);
+                var doc = System.Text.Json.JsonDocument.Parse(json);
+                return doc.RootElement.GetProperty("theme").GetString() == "dark";
+            }
+            catch { }
+        }
+        // fallback: detect Windows system theme
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            if (key?.GetValue("AppsUseLightTheme") is int intVal)
+                return intVal == 0;
+        }
+        catch { }
+        return true;
     }
 
     public ObservableCollection<TabItem> Tabs { get; } = new();
