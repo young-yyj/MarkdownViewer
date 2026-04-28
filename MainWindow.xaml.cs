@@ -13,6 +13,7 @@ public partial class MainWindow : Window
 {
     private MainViewModel VM => (MainViewModel)DataContext;
     private MarkdownService? _markdownService;
+    private double _currentZoom = 1.0;
 
     public MainWindow()
     {
@@ -67,7 +68,16 @@ public partial class MainWindow : Window
 
         MarkdownWebView.Visibility = Visibility.Visible;
         var fullHtml = _markdownService!.BuildFullHtml(tab.HtmlContent, VM.IsDarkMode);
+        MarkdownWebView.CoreWebView2.NavigationCompleted += ApplyStoredZoom;
         MarkdownWebView.CoreWebView2.NavigateToString(fullHtml);
+    }
+
+    private async void ApplyStoredZoom(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+    {
+        MarkdownWebView.CoreWebView2.NavigationCompleted -= ApplyStoredZoom;
+        if (_currentZoom != 1.0)
+            await MarkdownWebView.CoreWebView2.ExecuteScriptAsync(
+                $"document.body.style.zoom = {_currentZoom};");
     }
 
     private async void OnTocScrollRequested(object? sender, TocHeading heading)
@@ -83,7 +93,8 @@ public partial class MainWindow : Window
         {
             var json = System.Text.Json.JsonDocument.Parse(e.WebMessageAsJson);
             var root = json.RootElement;
-            if (root.GetProperty("type").GetString() == "toc-scroll")
+            var type = root.GetProperty("type").GetString();
+            if (type == "toc-scroll")
             {
                 var headingId = root.GetProperty("headingId").GetString();
                 if (headingId != null)
@@ -94,6 +105,11 @@ public partial class MainWindow : Window
                         ScrollTocToActive();
                     });
                 }
+            }
+            else if (type == "zoom")
+            {
+                var level = root.GetProperty("level").GetDouble();
+                _currentZoom = level;
             }
         }
         catch { }

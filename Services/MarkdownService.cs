@@ -76,6 +76,27 @@ public class MarkdownService
         pre.appendChild(btn);
     }});
 }})();
+(function() {{
+    let zoom = 1.0;
+    const minZoom = 0.3, maxZoom = 3.0, step = 0.1;
+
+    window.addEventListener('wheel', e => {{
+        if (!e.ctrlKey) return;
+        e.preventDefault();
+        zoom = Math.min(maxZoom, Math.max(minZoom, zoom - Math.sign(e.deltaY) * step));
+        document.body.style.zoom = zoom;
+        window.chrome.webview.postMessage({{type:'zoom', level: zoom}});
+    }}, {{passive: false}});
+
+    window.addEventListener('keydown', e => {{
+        if (e.ctrlKey && e.key === '0') {{
+            e.preventDefault();
+            zoom = 1.0;
+            document.body.style.zoom = zoom;
+            window.chrome.webview.postMessage({{type:'zoom', level: zoom}});
+        }}
+    }});
+}})();
 </script>
 </body>
 </html>";
