@@ -24,7 +24,13 @@ public partial class MainWindow : Window
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         _markdownService = new MarkdownService();
-        await MarkdownWebView.EnsureCoreWebView2Async();
+
+        var userData = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "MarkdownViewer", "WebView2");
+        var env = await Microsoft.Web.WebView2.Core.CoreWebView2Environment
+            .CreateAsync(userDataFolder: userData);
+        await MarkdownWebView.EnsureCoreWebView2Async(env);
         MarkdownWebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
 
         VM.NavigateRequested += OnNavigateRequested;
