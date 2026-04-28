@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Text;
 using System.Windows;
 using MarkdownViewer.Models;
@@ -22,6 +23,7 @@ public class MainViewModel : ObservableObject
         ToggleTocCommand = new RelayCommand(ToggleToc);
         OpenRecentFileCommand = new RelayCommand<RecentFileEntry>(OpenRecentFile);
         ClearRecentFilesCommand = new RelayCommand(ClearRecentFiles);
+        ToggleThemeCommand = new RelayCommand(ToggleTheme);
 
         LoadRecentFiles();
     }
@@ -65,15 +67,31 @@ public class MainViewModel : ObservableObject
         ? $"{ActiveTab.FileName} — MarkdownViewer"
         : "MarkdownViewer";
 
+    private bool _isDarkMode = true;
+    public bool IsDarkMode
+    {
+        get => _isDarkMode;
+        set
+        {
+            if (SetProperty(ref _isDarkMode, value))
+                ThemeChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public string ThemeIcon => IsDarkMode ? "🌙" : "☀️";
+    public string ThemeTooltip => IsDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme";
+
     public RelayCommand OpenFileCommand { get; }
     public RelayCommand<TabItem> CloseTabCommand { get; }
     public RelayCommand<TabItem> SelectTabCommand { get; }
     public RelayCommand ToggleTocCommand { get; }
     public RelayCommand<RecentFileEntry> OpenRecentFileCommand { get; }
     public RelayCommand ClearRecentFilesCommand { get; }
+    public RelayCommand ToggleThemeCommand { get; }
 
     public event EventHandler<TabItem?>? NavigateRequested;
     public event EventHandler<TocHeading>? TocScrollRequested;
+    public event EventHandler? ThemeChanged;
 
     public void OpenFile()
     {
@@ -204,6 +222,14 @@ public class MainViewModel : ObservableObject
     private void ToggleToc()
     {
         IsTocVisible = !IsTocVisible;
+    }
+
+    private void ToggleTheme()
+    {
+        IsDarkMode = !IsDarkMode;
+        OnPropertyChanged(nameof(ThemeIcon));
+        OnPropertyChanged(nameof(ThemeTooltip));
+        ((App)Application.Current).SwitchTheme(IsDarkMode);
     }
 
     private void BuildTocForActiveTab()
