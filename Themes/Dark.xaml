@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="WindowBg" Color="#1e1e1e"/>
+    <SolidColorBrush x:Key="SurfaceBg" Color="#252525"/>
+    <SolidColorBrush x:Key="ButtonBg" Color="#3a3a3a"/>
+    <SolidColorBrush x:Key="ElevatedBg" Color="#2d2d2d"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#333333"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="#007acc"/>
+    <SolidColorBrush x:Key="TabActiveBorder" Color="#007acc"/>
+    <SolidColorBrush x:Key="TabBg" Color="#1e1e1e"/>
+    <SolidColorBrush x:Key="TocActiveBg" Color="#3a5a8a"/>
+    <SolidColorBrush x:Key="TocHoverBg" Color="#333333"/>
+    <SolidColorBrush x:Key="TextPrimary" Color="#dcdcdc"/>
+    <SolidColorBrush x:Key="TextBody" Color="#c8c8c8"/>
+    <SolidColorBrush x:Key="TextDimmed" Color="#888888"/>
+    <SolidColorBrush x:Key="DotActive" Color="#6a9955"/>
+    <SolidColorBrush x:Key="DotNormal" Color="#666666"/>
+    <SolidColorBrush x:Key="TocHeaderText" Color="#555555"/>
+    <SolidColorBrush x:Key="TocItemText" Color="#b0b0b0"/>
+    <SolidColorBrush x:Key="StatusBarBg" Color="#007acc"/>
+</ResourceDictionary>
