@@ -1,5 +1,4 @@
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using Border = System.Windows.Controls.Border;
@@ -14,7 +13,6 @@ public partial class MainWindow : Window
 {
     private MainViewModel VM => (MainViewModel)DataContext;
     private MarkdownService? _markdownService;
-    private string? _cssContent;
 
     public MainWindow()
     {
@@ -25,12 +23,12 @@ public partial class MainWindow : Window
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         _markdownService = new MarkdownService();
-        _cssContent = LoadCssResource();
         await MarkdownWebView.EnsureCoreWebView2Async();
         MarkdownWebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
 
         VM.NavigateRequested += OnNavigateRequested;
         VM.TocScrollRequested += OnTocScrollRequested;
+        VM.ThemeChanged += OnThemeChanged;
 
         var args = Environment.GetCommandLineArgs();
         if (args.Length > 1)
@@ -41,26 +39,34 @@ public partial class MainWindow : Window
         }
     }
 
-    private static string LoadCssResource()
+    private void OnThemeChanged(object? sender, EventArgs e)
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = "MarkdownViewer.Resources.markdown-styles.css";
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream == null) return string.Empty;
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
+        if (_markdownService == null) return;
+
+        foreach (var tab in VM.Tabs)
+        {
+            if (tab.RawMarkdown == null) continue;
+            var (html, _) = _markdownService.Parse(tab.RawMarkdown);
+            tab.HtmlContent = html;
+        }
+
+        if (VM.ActiveTab?.HtmlContent != null)
+        {
+            var fullHtml = _markdownService.BuildFullHtml(VM.ActiveTab.HtmlContent, VM.IsDarkMode);
+            MarkdownWebView.CoreWebView2.NavigateToString(fullHtml);
+        }
     }
 
     private void OnNavigateRequested(object? sender, TabItem? tab)
     {
-        if (tab?.HtmlContent == null || _cssContent == null)
+        if (tab?.HtmlContent == null)
         {
             MarkdownWebView.Visibility = Visibility.Collapsed;
             return;
         }
 
         MarkdownWebView.Visibility = Visibility.Visible;
-        var fullHtml = _markdownService!.BuildFullHtml(tab.HtmlContent, _cssContent);
+        var fullHtml = _markdownService!.BuildFullHtml(tab.HtmlContent, VM.IsDarkMode);
         MarkdownWebView.CoreWebView2.NavigateToString(fullHtml);
     }
 

@@ -9,7 +9,7 @@
         Title="{Binding WindowTitle}"
         Height="700" Width="1100"
         MinHeight="500" MinWidth="800"
-        Background="#1e1e1e"
+        Background="{DynamicResource WindowBg}"
         WindowStartupLocation="CenterScreen"
         AllowDrop="True">
 
@@ -37,12 +37,14 @@
         </Grid.RowDefinitions>
 
         <!-- Row 0: Toolbar -->
-        <Border Grid.Row="0" Background="#252525" BorderBrush="#333" BorderThickness="0,0,0,1"
+        <Border Grid.Row="0" Background="{DynamicResource SurfaceBg}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
                 Padding="8,6">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button Content="📂 Open" Command="{Binding OpenFileCommand}"
-                            Background="#3a3a3a" Foreground="#dcdcdc"
+                            Background="{DynamicResource ButtonBg}"
+                            Foreground="{DynamicResource TextPrimary}"
                             BorderThickness="0" Padding="10,5" Cursor="Hand"
                             FontSize="12">
                         <Button.Resources>
@@ -56,7 +58,8 @@
                                Margin="4,0"/>
 
                     <Button x:Name="RecentButton" Click="RecentButton_Click"
-                            Background="#3a3a3a" Foreground="#dcdcdc"
+                            Background="{DynamicResource ButtonBg}"
+                            Foreground="{DynamicResource TextPrimary}"
                             BorderThickness="0" Padding="8,5" Cursor="Hand"
                             FontSize="12">
                         <Button.Resources>
@@ -65,8 +68,8 @@
                             </Style>
                         </Button.Resources>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🕐 " Foreground="#888"/>
-                            <TextBlock Text="Recent ▾" Foreground="#dcdcdc"/>
+                            <TextBlock Text="🕐 " Foreground="{DynamicResource TextDimmed}"/>
+                            <TextBlock Text="Recent ▾" Foreground="{DynamicResource TextPrimary}"/>
                         </StackPanel>
                     </Button>
 
@@ -74,7 +77,8 @@
                                Margin="4,0"/>
 
                     <Button Command="{Binding ToggleTocCommand}"
-                            Background="#3a3a3a" Foreground="#dcdcdc"
+                            Background="{DynamicResource ButtonBg}"
+                            Foreground="{DynamicResource TextPrimary}"
                             BorderThickness="0" Padding="10,5" Cursor="Hand"
                             FontSize="12">
                         <Button.Resources>
@@ -88,9 +92,23 @@
                     </Button>
                 </StackPanel>
 
-                <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
-                           Text="{Binding StatusText}"
-                           Foreground="#666" FontSize="11"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Button Command="{Binding ToggleThemeCommand}"
+                            Background="Transparent" BorderThickness="0"
+                            Padding="6,4" Cursor="Hand" FontSize="13"
+                            ToolTip="{Binding ThemeTooltip}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                        <TextBlock Text="{Binding ThemeIcon}"/>
+                    </Button>
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="{DynamicResource TextDimmed}" FontSize="11"
+                               VerticalAlignment="Center" Margin="4,0,0,0"/>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -98,11 +116,12 @@
         <Popup x:Name="RecentPopup" PlacementTarget="{Binding ElementName=RecentButton}"
                Placement="Bottom" StaysOpen="False" PopupAnimation="Fade"
                Width="340" AllowsTransparency="True">
-            <Border Background="#2d2d2d" BorderBrush="#555" BorderThickness="1"
+            <Border Background="{DynamicResource ElevatedBg}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     CornerRadius="6" Padding="4">
                 <StackPanel>
-                    <TextBlock Text="RECENT FILES" Foreground="#666" FontSize="10"
-                               Margin="8,4" FontWeight="SemiBold"/>
+                    <TextBlock Text="RECENT FILES" Foreground="{DynamicResource TextDimmed}"
+                               FontSize="10" Margin="8,4" FontWeight="SemiBold"/>
                     <ItemsControl ItemsSource="{Binding RecentFiles}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="models:RecentFileEntry">
@@ -117,12 +136,14 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="📄" Margin="0,0,8,0"
-                                                   Foreground="#888" FontSize="12"/>
+                                                   Foreground="{DynamicResource TextDimmed}" FontSize="12"/>
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Text="{Binding FileName}"
-                                                       Foreground="#dcdcdc" FontSize="12"/>
+                                                       Foreground="{DynamicResource TextPrimary}"
+                                                       FontSize="12"/>
                                             <TextBlock Text="{Binding Directory}"
-                                                       Foreground="#666" FontSize="10"/>
+                                                       Foreground="{DynamicResource TextDimmed}"
+                                                       FontSize="10"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="2"
                                                    Text="missing" FontSize="9"
@@ -135,9 +156,10 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <Separator Background="#444" Margin="4,2"/>
+                    <Separator Background="{DynamicResource BorderBrush}" Margin="4,2"/>
                     <Button Content="Clear recent files"
-                            Background="Transparent" Foreground="#888"
+                            Background="Transparent"
+                            Foreground="{DynamicResource TextDimmed}"
                             BorderThickness="0" HorizontalAlignment="Left"
                             FontSize="11" Padding="8,4" Cursor="Hand"
                             Command="{Binding ClearRecentFilesCommand}"/>
@@ -146,7 +168,8 @@
         </Popup>
 
         <!-- Row 1: Tab Bar -->
-        <Border Grid.Row="1" Background="#1e1e1e" BorderBrush="#007acc"
+        <Border Grid.Row="1" Background="{DynamicResource TabBg}"
+                BorderBrush="{DynamicResource AccentBrush}"
                 BorderThickness="0,0,0,2" Padding="0">
             <Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
@@ -161,8 +184,8 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="models:TabItem">
                                     <Border Padding="10,6" MinWidth="120"
-                                            Background="#252525"
-                                            BorderBrush="#007acc"
+                                            Background="{DynamicResource SurfaceBg}"
+                                            BorderBrush="{DynamicResource AccentBrush}"
                                             BorderThickness="0,0,0,2"
                                             Margin="0,0,0,-2"
                                             Cursor="Hand"
@@ -171,14 +194,14 @@
                                         <StackPanel Orientation="Horizontal">
                                             <Ellipse Width="6" Height="6"
                                                      Margin="0,0,6,0" VerticalAlignment="Center"
-                                                     Fill="#6a9955">
+                                                     Fill="{DynamicResource DotActive}">
                                             </Ellipse>
                                             <TextBlock Text="{Binding FileName}"
-                                                       Foreground="#dcdcdc" FontSize="11"
-                                                       MaxWidth="180"
+                                                       Foreground="{DynamicResource TextPrimary}"
+                                                       FontSize="11" MaxWidth="180"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <Button Content="✕" FontSize="10"
-                                                    Foreground="#888"
+                                                    Foreground="{DynamicResource TextDimmed}"
                                                     Background="Transparent"
                                                     BorderThickness="0"
                                                     Padding="6,0,0,0"
@@ -192,7 +215,8 @@
                         </ItemsControl>
 
                         <Button Content="+" FontSize="14"
-                                Foreground="#888" Background="Transparent"
+                                Foreground="{DynamicResource TextDimmed}"
+                                Background="Transparent"
                                 BorderThickness="0" Padding="8,6" Cursor="Hand"
                                 Click="AddTab_Click"/>
                     </StackPanel>
@@ -208,8 +232,8 @@
             </Grid.ColumnDefinitions>
 
             <!-- TOC Sidebar -->
-            <Border Grid.Column="0" Background="#252525"
-                    BorderBrush="#333" BorderThickness="0,0,1,0"
+            <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0"
                     Width="200"
                     Visibility="{Binding IsTocVisible, Converter={StaticResource BoolToVis}}">
                 <Grid>
@@ -219,7 +243,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Text="ON THIS PAGE"
-                               Foreground="#555" FontSize="10"
+                               Foreground="{DynamicResource TocHeaderText}" FontSize="10"
                                FontWeight="SemiBold" Margin="10,8,10,6"/>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -236,11 +260,10 @@
                                                 <Setter Property="Padding" Value="8,0"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#333333"/>
+                                                        <Setter Property="Background" Value="{DynamicResource TocHoverBg}"/>
                                                     </Trigger>
-                                                    <DataTrigger Binding="{Binding IsActive}"
-                                                                 Value="True">
-                                                        <Setter Property="Background" Value="#3a5a8a"/>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource TocActiveBg}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -250,7 +273,7 @@
                                             <Ellipse Width="4" Height="4" VerticalAlignment="Center">
                                                 <Ellipse.Style>
                                                     <Style TargetType="Ellipse">
-                                                        <Setter Property="Fill" Value="#666"/>
+                                                        <Setter Property="Fill" Value="{DynamicResource DotNormal}"/>
                                                         <Setter Property="Width" Value="4"/>
                                                         <Setter Property="Height" Value="4"/>
                                                         <Style.Triggers>
@@ -267,7 +290,7 @@
                                                                 <Setter Property="Height" Value="3"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                                <Setter Property="Fill" Value="#6a9955"/>
+                                                                <Setter Property="Fill" Value="{DynamicResource DotActive}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -276,7 +299,7 @@
                                             <TextBlock Text="{Binding Text}"
                                                        Margin="6,0,0,0"
                                                        FontSize="12"
-                                                       Foreground="#b0b0b0"
+                                                       Foreground="{DynamicResource TocItemText}"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Text}">
                                                 <TextBlock.Style>
@@ -284,7 +307,7 @@
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Level}" Value="1">
                                                                 <Setter Property="FontWeight" Value="Bold"/>
-                                                                <Setter Property="Foreground" Value="#dcdcdc"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding Level}" Value="3">
                                                                 <Setter Property="FontSize" Value="11"/>
@@ -311,24 +334,24 @@
                               Visibility="{Binding HasTabs, Converter={StaticResource BoolToVis}}"/>
 
                 <!-- Landing page (no tabs open) -->
-                <Border Background="#1e1e1e"
+                <Border Background="{DynamicResource WindowBg}"
                         Visibility="{Binding HasTabs, Converter={StaticResource InverseBoolToVis}}">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                 Margin="0,-40,0,0">
                         <TextBlock Text="📘" FontSize="48"
-                                   Foreground="#555" TextAlignment="Center"
-                                   Margin="0,0,0,12"/>
+                                   Foreground="{DynamicResource TocHeaderText}"
+                                   TextAlignment="Center" Margin="0,0,0,12"/>
                         <TextBlock Text="Markdown Viewer"
                                    FontSize="18" FontWeight="SemiBold"
-                                   Foreground="#dcdcdc" TextAlignment="Center"
-                                   Margin="0,0,0,4"/>
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   TextAlignment="Center" Margin="0,0,0,4"/>
                         <TextBlock Text="Open a Markdown file to get started"
                                    FontSize="12"
-                                   Foreground="#888" TextAlignment="Center"
-                                   Margin="0,0,0,24"/>
+                                   Foreground="{DynamicResource TextDimmed}"
+                                   TextAlignment="Center" Margin="0,0,0,24"/>
                         <Button Content="📂 Open File" FontSize="13"
                                 Command="{Binding OpenFileCommand}"
-                                Background="#007acc" Foreground="White"
+                                Background="{DynamicResource AccentBrush}" Foreground="White"
                                 BorderThickness="0" Padding="14,8"
                                 Cursor="Hand" HorizontalAlignment="Center">
                             <Button.Resources>
@@ -338,27 +361,27 @@
                             </Button.Resources>
                         </Button>
                         <TextBlock Text="Ctrl+O" FontSize="11"
-                                   Foreground="#555" TextAlignment="Center"
-                                   Margin="0,6,0,0"/>
+                                   Foreground="{DynamicResource TocHeaderText}"
+                                   TextAlignment="Center" Margin="0,6,0,0"/>
 
                         <Border Margin="0,32,0,0" Width="320"
                                 Visibility="{Binding RecentFiles.Count, Converter={StaticResource BoolToVis}}">
                             <StackPanel>
                                 <TextBlock Text="RECENTLY OPENED"
-                                           Foreground="#555" FontSize="10"
-                                           Margin="0,0,0,8"/>
-                                <ItemsControl ItemsSource="{Binding RecentFiles}"
-                                              MaxHeight="200">
+                                           Foreground="{DynamicResource TocHeaderText}"
+                                           FontSize="10" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding RecentFiles}" MaxHeight="200">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="models:RecentFileEntry">
                                             <Border Padding="8,5" CornerRadius="4"
                                                     Cursor="Hand"
                                                     MouseLeftButtonDown="RecentFile_Click">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="📄" Foreground="#555"
+                                                    <TextBlock Text="📄"
+                                                               Foreground="{DynamicResource TocHeaderText}"
                                                                FontSize="12" Margin="0,0,8,0"/>
                                                     <TextBlock Text="{Binding FileName}"
-                                                               Foreground="#c8c8c8"
+                                                               Foreground="{DynamicResource TextBody}"
                                                                FontSize="12"/>
                                                 </StackPanel>
                                             </Border>
@@ -373,7 +396,7 @@
         </Grid>
 
         <!-- Row 3: Status Bar -->
-        <Border Grid.Row="3" Background="#007acc" Padding="4,2,10,2">
+        <Border Grid.Row="3" Background="{DynamicResource StatusBarBg}" Padding="4,2,10,2">
             <Grid>
                 <TextBlock Grid.Column="0" Text="{Binding StatusText}"
                            Foreground="White" FontSize="10"/>
