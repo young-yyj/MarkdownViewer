@@ -223,17 +223,21 @@
                                FontWeight="SemiBold" Margin="10,8,10,6"/>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding TocHeadings}">
+                        <ItemsControl x:Name="TocItemsControl" ItemsSource="{Binding TocHeadings}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="models:TocHeading">
-                                    <Border Padding="6,4" Margin="4,1" CornerRadius="3"
+                                    <Border Margin="4,0" CornerRadius="3"
                                             Cursor="Hand"
                                             MouseLeftButtonDown="TocItem_Click"
                                             Tag="{Binding}">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Padding" Value="8,0"/>
                                                 <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#333333"/>
+                                                    </Trigger>
                                                     <DataTrigger Binding="{Binding IsActive}"
                                                                  Value="True">
                                                         <Setter Property="Background" Value="#3a5a8a"/>
@@ -241,22 +245,58 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock Text="{Binding Text}"
-                                                   Margin="{Binding Indent, StringFormat='{}{0},0,0,0'}"
-                                                   Foreground="#b0b0b0" FontSize="11"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding Text}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Level}" Value="1">
-                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                            <Setter Property="Foreground" Value="#dcdcdc"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="{Binding Indent, StringFormat='{}{0},0,0,0'}">
+                                            <Ellipse Width="4" Height="4" VerticalAlignment="Center">
+                                                <Ellipse.Style>
+                                                    <Style TargetType="Ellipse">
+                                                        <Setter Property="Fill" Value="#666"/>
+                                                        <Setter Property="Width" Value="4"/>
+                                                        <Setter Property="Height" Value="4"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Level}" Value="1">
+                                                                <Setter Property="Width" Value="5"/>
+                                                                <Setter Property="Height" Value="5"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Level}" Value="3">
+                                                                <Setter Property="Width" Value="3"/>
+                                                                <Setter Property="Height" Value="3"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Level}" Value="4">
+                                                                <Setter Property="Width" Value="3"/>
+                                                                <Setter Property="Height" Value="3"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                <Setter Property="Fill" Value="#6a9955"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Ellipse.Style>
+                                            </Ellipse>
+                                            <TextBlock Text="{Binding Text}"
+                                                       Margin="6,0,0,0"
+                                                       FontSize="12"
+                                                       Foreground="#b0b0b0"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Text}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Level}" Value="1">
+                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                <Setter Property="Foreground" Value="#dcdcdc"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Level}" Value="3">
+                                                                <Setter Property="FontSize" Value="11"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Level}" Value="4">
+                                                                <Setter Property="FontSize" Value="11"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -264,12 +304,6 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
-
-            <!-- TOC resize gripper -->
-            <GridSplitter Grid.Column="0" Width="3"
-                          Background="Transparent"
-                          HorizontalAlignment="Right"
-                          Visibility="{Binding IsTocVisible, Converter={StaticResource BoolToVis}}"/>
 
             <!-- Content Area -->
             <Grid Grid.Column="1">

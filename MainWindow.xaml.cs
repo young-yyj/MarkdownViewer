@@ -81,10 +81,26 @@ public partial class MainWindow : Window
             {
                 var headingId = root.GetProperty("headingId").GetString();
                 if (headingId != null)
-                    Dispatcher.Invoke(() => VM.OnWebMessageReceived(headingId));
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        VM.OnWebMessageReceived(headingId);
+                        ScrollTocToActive();
+                    });
+                }
             }
         }
         catch { }
+    }
+
+    private void ScrollTocToActive()
+    {
+        var active = VM.TocHeadings.FirstOrDefault(h => h.IsActive);
+        if (active == null) return;
+
+        var container = TocItemsControl.ItemContainerGenerator.ContainerFromItem(active);
+        if (container is FrameworkElement element)
+            element.BringIntoView();
     }
 
     private void Tab_Click(object sender, MouseButtonEventArgs e)

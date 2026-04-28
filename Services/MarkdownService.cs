@@ -48,6 +48,32 @@ public class MarkdownService
     window.addEventListener('scroll', updateActive, {{passive: true}});
     updateActive();
 }})();
+(function() {{
+    document.querySelectorAll('.markdown-body pre').forEach(pre => {{
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = '复制';
+        btn.onclick = () => {{
+            const code = pre.querySelector('code');
+            const text = code ? code.textContent : pre.textContent;
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            btn.textContent = '已复制!';
+            btn.classList.add('copied');
+            setTimeout(() => {{
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }}, 1500);
+        }};
+        pre.appendChild(btn);
+    }});
+}})();
 </script>
 </body>
 </html>";
@@ -66,7 +92,7 @@ public class MarkdownService
             var text = match.Groups[2].Value.Trim();
             var id = Slugify(text, headings);
             headings.Add((id, text, level));
-            lines[i] = $"{match.Groups[1].Value} {{#{id}}} {text}";
+            lines[i] = $"{match.Groups[1].Value} {text} {{#{id}}}";
         }
         return string.Join('\n', lines);
     }

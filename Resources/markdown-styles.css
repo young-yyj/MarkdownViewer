@@ -60,12 +60,38 @@ body {
 }
 
 .markdown-body pre {
+    position: relative;
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 6px;
     padding: 14px 16px;
     margin: 0 0 16px 0;
     overflow-x: auto;
+}
+
+.markdown-body .copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-family: 'Segoe UI', sans-serif;
+    color: #888;
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.markdown-body pre:hover .copy-btn { opacity: 1; }
+.markdown-body .copy-btn:hover {
+    color: #dcdcdc;
+    background: #444;
+}
+.markdown-body .copy-btn.copied {
+    color: #6a9955;
+    border-color: #6a9955;
 }
 
 .markdown-body pre code {
