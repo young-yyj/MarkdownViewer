@@ -12,6 +12,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed>
+    <ApplicationIcon>Resources\logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\logo.ico" />
     <EmbeddedResource Include="Resources\markdown-styles-dark.css" />
     <EmbeddedResource Include="Resources\markdown-styles-light.css" />
   </ItemGroup>
