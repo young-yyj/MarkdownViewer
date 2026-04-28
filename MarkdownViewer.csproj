@@ -14,7 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\markdown-styles.css" />
+    <EmbeddedResource Include="Resources\markdown-styles-dark.css" />
+    <EmbeddedResource Include="Resources\markdown-styles-light.css" />
   </ItemGroup>
 
 </Project>
