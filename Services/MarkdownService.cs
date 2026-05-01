@@ -151,10 +151,11 @@ public class MarkdownService
                 var prev = lines[i - 1];
                 if (!Regex.IsMatch(prev, @"^#{1,6}\s")) // skip if already ATX
                 {
+                    var trimmedLine = lines[i].TrimEnd();
                     int setextLevel = 0;
-                    if (Regex.IsMatch(lines[i], @"^={3,}$"))
+                    if (Regex.IsMatch(trimmedLine, @"^={3,}$"))
                         setextLevel = 1;
-                    else if (Regex.IsMatch(lines[i], @"^-{3,}$"))
+                    else if (Regex.IsMatch(trimmedLine, @"^-{3,}$"))
                         setextLevel = 2;
 
                     if (setextLevel > 0)
@@ -164,7 +165,7 @@ public class MarkdownService
                         {
                             var id = Slugify(text, headings);
                             headings.Add((id, text, setextLevel));
-                            lines[i] = $"{lines[i]} {{#{id}}}";
+                            lines[i-1] = $"{lines[i-1]} {{#{id}}}";
                         }
                     }
                 }
