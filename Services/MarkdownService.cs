@@ -106,18 +106,82 @@ public class MarkdownService
     {
         headings = new();
         var lines = markdown.Split('\n');
+        bool inFencedBlock = false;
+        char fenceChar = '\0';
+        int fenceCount = 0;
+
         for (int i = 0; i < lines.Length; i++)
         {
-            var match = Regex.Match(lines[i], @"^(#{1,6})\s+(.+)$");
-            if (!match.Success) continue;
+            var trimmed = lines[i].TrimStart();
 
-            var level = match.Groups[1].Length;
-            var text = match.Groups[2].Value.Trim();
-            var id = Slugify(text, headings);
-            headings.Add((id, text, level));
-            lines[i] = $"{match.Groups[1].Value} {text} {{#{id}}}";
+            // detect fenced code block boundaries
+            if (!inFencedBlock && (trimmed.StartsWith("```") || trimmed.StartsWith("~~~")))
+            {
+                inFencedBlock = true;
+                fenceChar = trimmed[0];
+                fenceCount = trimmed.TakeWhile(c => c == fenceChar).Count();
+                continue;
+            }
+            if (inFencedBlock)
+            {
+                if (trimmed.StartsWith(new string(fenceChar, fenceCount))
+                    && trimmed.TrimEnd().Length == fenceCount)
+                {
+                    inFencedBlock = false;
+                    fenceChar = '\0';
+                    fenceCount = 0;
+                }
+                continue;
+            }
+
+            var match = Regex.Match(lines[i], @"^(#{1,6})\s+(.+)$");
+            if (match.Success)
+            {
+                var level = match.Groups[1].Length;
+                var text = match.Groups[2].Value.Trim();
+                var id = Slugify(text, headings);
+                headings.Add((id, text, level));
+                lines[i] = $"{match.Groups[1].Value} {text} {{#{id}}}";
+                continue;
+            }
+
+            // detect Setext headings (=== level 1, --- level 2)
+            if (i > 0 && !string.IsNullOrWhiteSpace(lines[i - 1]))
+            {
+                var prev = lines[i - 1];
+                if (!Regex.IsMatch(prev, @"^#{1,6}\s")) // skip if already ATX
+                {
+                    int setextLevel = 0;
+                    if (Regex.IsMatch(lines[i], @"^={3,}$"))
+                        setextLevel = 1;
+                    else if (Regex.IsMatch(lines[i], @"^-{3,}$"))
+                        setextLevel = 2;
+
+                    if (setextLevel > 0)
+                    {
+                        var text = StripInlineMarkdown(prev);
+                        if (!string.IsNullOrEmpty(text))
+                        {
+                            var id = Slugify(text, headings);
+                            headings.Add((id, text, setextLevel));
+                            lines[i] = $"{lines[i]} {{#{id}}}";
+                        }
+                    }
+                }
+            }
         }
         return string.Join('\n', lines);
+    }
+
+    private static string StripInlineMarkdown(string text)
+    {
+        text = Regex.Replace(text, @"!\[.*?\]\(.*?\)", "");
+        text = Regex.Replace(text, @"\[([^\]]*)\]\([^)]*\)", "$1");
+        text = Regex.Replace(text, @"\*{1,3}([^*]+)\*{1,3}", "$1");
+        text = Regex.Replace(text, @"_{1,3}([^_]+)_{1,3}", "$1");
+        text = Regex.Replace(text, @"`([^`]+)`", "$1");
+        text = Regex.Replace(text, @"<[^>]+>", "");
+        return text.Trim();
     }
 
     private static string Slugify(string text, List<(string id, string, int)> existing)

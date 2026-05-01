@@ -168,7 +168,7 @@ public class MainViewModel : ObservableObject
             if (result != MessageBoxResult.Yes) return;
         }
 
-        var rawMarkdown = System.IO.File.ReadAllText(filePath, Encoding.UTF8);
+        var rawMarkdown = ReadFileAutoEncoding(filePath);
         var lineCount = rawMarkdown.Split('\n').Length;
         var wordCount = rawMarkdown.Split(new[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Length;
 
@@ -290,6 +290,24 @@ public class MainViewModel : ObservableObject
     {
         _recentFiles.Clear();
         RecentFiles.Clear();
+    }
+
+    private static string ReadFileAutoEncoding(string filePath)
+    {
+        using var reader = new StreamReader(filePath, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        var content = reader.ReadToEnd();
+
+        // If UTF-8-without-BOM produced replacement chars, retry with system ANSI codepage
+        if (reader.CurrentEncoding is UTF8Encoding)
+        {
+            var replacementCount = 0;
+            var checkLen = Math.Min(content.Length, 500);
+            for (int i = 0; i < checkLen; i++)
+                if (content[i] == '�') replacementCount++;
+            if (replacementCount > 5)
+                return File.ReadAllText(filePath, Encoding.GetEncoding(0));
+        }
+        return content;
     }
 
     private static string EstimateReadTime(int wordCount)
