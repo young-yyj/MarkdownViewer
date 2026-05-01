@@ -30,13 +30,24 @@ public partial class MainWindow : Window
     {
         _markdownService = new MarkdownService();
 
-        var userData = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "MarkdownViewer", "WebView2");
-        var env = await Microsoft.Web.WebView2.Core.CoreWebView2Environment
-            .CreateAsync(userDataFolder: userData);
-        await MarkdownWebView.EnsureCoreWebView2Async(env);
-        MarkdownWebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
+        try
+        {
+            var userData = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "MarkdownViewer", "WebView2");
+            var env = await Microsoft.Web.WebView2.Core.CoreWebView2Environment
+                .CreateAsync(userDataFolder: userData);
+            await MarkdownWebView.EnsureCoreWebView2Async(env);
+            MarkdownWebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Failed to initialize WebView2.\n\nPlease ensure the WebView2 Runtime is installed.\n\n{ex.Message}",
+                "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Application.Current.Shutdown();
+            return;
+        }
 
         VM.NavigateRequested += OnNavigateRequested;
         VM.TocScrollRequested += OnTocScrollRequested;
@@ -191,9 +202,9 @@ public partial class MainWindow : Window
     protected override void OnDrop(DragEventArgs e)
     {
         base.OnDrop(e);
-        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data.GetDataPresent(DataFormats.FileDrop)
+            && e.Data.GetData(DataFormats.FileDrop) is string[] files)
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             VM.OnFileDropped(files);
         }
     }

@@ -186,13 +186,23 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="models:TabItem">
                                     <Border Padding="10,6" MinWidth="120"
-                                            Background="{DynamicResource SurfaceBg}"
-                                            BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="0,0,0,2"
-                                            Margin="0,0,0,-2"
                                             Cursor="Hand"
                                             MouseLeftButtonDown="Tab_Click"
                                             Tag="{Binding}">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                                <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                                                <Setter Property="Margin" Value="0,0,0,-2"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource ElevatedBg}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <StackPanel Orientation="Horizontal">
                                             <Ellipse Width="6" Height="6"
                                                      Margin="0,0,6,0" VerticalAlignment="Center"
@@ -237,7 +247,7 @@
             <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0"
                     Width="200"
-                    Visibility="{Binding IsTocVisible, Converter={StaticResource BoolToVis}}">
+                    Visibility="{Binding ShowTocSidebar, Converter={StaticResource BoolToVis}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -400,6 +410,10 @@
         <!-- Row 3: Status Bar -->
         <Border Grid.Row="3" Background="{DynamicResource StatusBarBg}" Padding="4,2,10,2">
             <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="{Binding StatusText}"
                            Foreground="White" FontSize="10"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal"

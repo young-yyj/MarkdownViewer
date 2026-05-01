@@ -1,6 +1,8 @@
+using MarkdownViewer.ViewModels;
+
 namespace MarkdownViewer.Models;
 
-public class TabItem
+public class TabItem : ObservableObject
 {
     public string FilePath { get; set; } = string.Empty;
 
@@ -15,4 +17,11 @@ public class TabItem
     public string EncodingName { get; set; } = "UTF-8";
     public int LineCount { get; set; }
     public int WordCount { get; set; }
+
+    private bool _isActive;
+    public bool IsActive
+    {
+        get => _isActive;
+        set => SetProperty(ref _isActive, value);
+    }
 }

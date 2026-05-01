@@ -10,7 +10,12 @@ public class BoolToVisibilityConverter : IValueConverter
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        var boolValue = value is bool b && b;
+        var boolValue = value switch
+        {
+            bool b => b,
+            int n => n > 0,
+            _ => false
+        };
         if (Invert) boolValue = !boolValue;
         return boolValue ? Visibility.Visible : Visibility.Collapsed;
     }

@@ -21,8 +21,15 @@ public class RecentFilesService
         if (!System.IO.File.Exists(_dataFile))
             return new List<RecentFileEntry>();
 
-        var json = System.IO.File.ReadAllText(_dataFile);
-        return JsonSerializer.Deserialize<List<RecentFileEntry>>(json) ?? new List<RecentFileEntry>();
+        try
+        {
+            var json = System.IO.File.ReadAllText(_dataFile);
+            return JsonSerializer.Deserialize<List<RecentFileEntry>>(json) ?? new List<RecentFileEntry>();
+        }
+        catch
+        {
+            return new List<RecentFileEntry>();
+        }
     }
 
     public void Add(string filePath)

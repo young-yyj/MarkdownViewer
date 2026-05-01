@@ -65,9 +65,15 @@ public class MainViewModel : ObservableObject
         get => _activeTab;
         set
         {
+            if (_activeTab != null && _activeTab != value)
+                _activeTab.IsActive = false;
+            if (value != null && value != _activeTab)
+                value.IsActive = true;
+
             if (SetProperty(ref _activeTab, value))
             {
                 OnPropertyChanged(nameof(HasTabs));
+                OnPropertyChanged(nameof(ShowTocSidebar));
                 OnPropertyChanged(nameof(WindowTitle));
                 BuildTocForActiveTab();
                 NavigateRequested?.Invoke(this, value);
@@ -79,8 +85,14 @@ public class MainViewModel : ObservableObject
     public bool IsTocVisible
     {
         get => _isTocVisible;
-        set => SetProperty(ref _isTocVisible, value);
+        set
+        {
+            if (SetProperty(ref _isTocVisible, value))
+                OnPropertyChanged(nameof(ShowTocSidebar));
+        }
     }
+
+    public bool ShowTocSidebar => IsTocVisible && HasTabs;
 
     private string _statusText = "Ready";
     public string StatusText
@@ -151,6 +163,18 @@ public class MainViewModel : ObservableObject
             return;
         }
 
+        // deduplicate: switch to existing tab if already open
+        var normalizedPath = System.IO.Path.GetFullPath(filePath);
+        var existing = Tabs.FirstOrDefault(t =>
+            string.Equals(System.IO.Path.GetFullPath(t.FilePath), normalizedPath, StringComparison.OrdinalIgnoreCase));
+        if (existing != null)
+        {
+            ActiveTab = existing;
+            _recentFiles.Add(filePath);
+            LoadRecentFiles();
+            return;
+        }
+
         var ext = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
         if (ext != ".md" && ext != ".markdown" && ext != ".txt" && ext != ".mdown")
         {
@@ -168,7 +192,7 @@ public class MainViewModel : ObservableObject
             if (result != MessageBoxResult.Yes) return;
         }
 
-        var rawMarkdown = ReadFileAutoEncoding(filePath);
+        var (rawMarkdown, encodingName) = ReadFileAutoEncoding(filePath);
         var lineCount = rawMarkdown.Split('\n').Length;
         var wordCount = rawMarkdown.Split(new[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Length;
 
@@ -179,6 +203,7 @@ public class MainViewModel : ObservableObject
             FilePath = filePath,
             RawMarkdown = rawMarkdown,
             HtmlContent = html,
+            EncodingName = encodingName,
             LineCount = lineCount,
             WordCount = wordCount
         };
@@ -214,6 +239,7 @@ public class MainViewModel : ObservableObject
         }
 
         OnPropertyChanged(nameof(HasTabs));
+        OnPropertyChanged(nameof(ShowTocSidebar));
         OnPropertyChanged(nameof(WindowTitle));
         StatusText = Tabs.Count > 0 ? StatusText : "Ready";
     }
@@ -232,16 +258,16 @@ public class MainViewModel : ObservableObject
 
     public void SelectNextTab()
     {
-        if (Tabs.Count <= 1) return;
-        var idx = Tabs.IndexOf(ActiveTab!);
+        if (Tabs.Count <= 1 || ActiveTab == null) return;
+        var idx = Tabs.IndexOf(ActiveTab);
         idx = (idx + 1) % Tabs.Count;
         ActiveTab = Tabs[idx];
     }
 
     public void SelectPreviousTab()
     {
-        if (Tabs.Count <= 1) return;
-        var idx = Tabs.IndexOf(ActiveTab!);
+        if (Tabs.Count <= 1 || ActiveTab == null) return;
+        var idx = Tabs.IndexOf(ActiveTab);
         idx = (idx - 1 + Tabs.Count) % Tabs.Count;
         ActiveTab = Tabs[idx];
     }
@@ -292,10 +318,11 @@ public class MainViewModel : ObservableObject
         RecentFiles.Clear();
     }
 
-    private static string ReadFileAutoEncoding(string filePath)
+    private static (string content, string encodingName) ReadFileAutoEncoding(string filePath)
     {
         using var reader = new StreamReader(filePath, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
         var content = reader.ReadToEnd();
+        var encodingName = reader.CurrentEncoding.EncodingName;
 
         // If UTF-8-without-BOM produced replacement chars, retry with system ANSI codepage
         if (reader.CurrentEncoding is UTF8Encoding)
@@ -305,9 +332,13 @@ public class MainViewModel : ObservableObject
             for (int i = 0; i < checkLen; i++)
                 if (content[i] == '�') replacementCount++;
             if (replacementCount > 5)
-                return File.ReadAllText(filePath, Encoding.GetEncoding(0));
+            {
+                var fallback = Encoding.GetEncoding(0);
+                content = File.ReadAllText(filePath, fallback);
+                encodingName = fallback.EncodingName;
+            }
         }
-        return content;
+        return (content, encodingName);
     }
 
     private static string EstimateReadTime(int wordCount)

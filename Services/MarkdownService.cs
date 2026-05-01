@@ -16,6 +16,8 @@ public class MarkdownService
 
     public (string html, List<(string id, string text, int level)> headings) Parse(string markdown)
     {
+        if (markdown.Contains('\r'))
+            markdown = markdown.Replace("\r\n", "\n").Replace("\r", "\n");
         var processed = InjectHeadingIds(markdown, out var headings);
         var html = Markdown.ToHtml(processed, _pipeline);
         return (html, headings);
