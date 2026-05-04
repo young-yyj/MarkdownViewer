@@ -1,4 +1,5 @@
 using System.IO;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using Border = System.Windows.Controls.Border;
@@ -133,6 +134,14 @@ public partial class MainWindow : Window
                 var level = root.GetProperty("level").GetDouble();
                 _currentZoom = level;
             }
+            else if (type == "link-click")
+            {
+                var url = root.GetProperty("url").GetString();
+                if (!string.IsNullOrEmpty(url))
+                {
+                    OpenUrlInDefaultBrowser(url);
+                }
+            }
         }
         catch { }
     }
@@ -145,6 +154,31 @@ public partial class MainWindow : Window
         var container = TocItemsControl.ItemContainerGenerator.ContainerFromItem(active);
         if (container is FrameworkElement element)
             element.BringIntoView();
+    }
+
+    private void OpenUrlInDefaultBrowser(string url)
+    {
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            };
+            Process.Start(startInfo);
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            MessageBox.Show(
+                $"无法打开链接。可能没有安装默认浏览器或链接格式无效。\n\nURL: {url}\n错误: {ex.Message}",
+                "打开链接失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"打开链接时发生未知错误。\n\nURL: {url}\n错误: {ex.Message}",
+                "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void Tab_Click(object sender, MouseButtonEventArgs e)

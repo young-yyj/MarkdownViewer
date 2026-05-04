@@ -99,6 +99,18 @@ public class MarkdownService
         }}
     }});
 }})();
+
+(function() {{
+    document.querySelectorAll('a[href]').forEach(link => {{
+        link.addEventListener('click', e => {{
+            e.preventDefault();
+            const url = link.getAttribute('href');
+            if (url && !url.startsWith('#')) {{
+                window.chrome.webview.postMessage({{type:'link-click', url: url}});
+            }}
+        }});
+    }});
+}})();
 </script>
 </body>
 </html>";
