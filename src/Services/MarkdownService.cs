@@ -103,9 +103,9 @@ public class MarkdownService
 (function() {{
     document.querySelectorAll('a[href]').forEach(link => {{
         link.addEventListener('click', e => {{
-            e.preventDefault();
             const url = link.getAttribute('href');
             if (url && !url.startsWith('#')) {{
+                e.preventDefault();
                 window.chrome.webview.postMessage({{type:'link-click', url: url}});
             }}
         }});
@@ -153,7 +153,7 @@ public class MarkdownService
             {
                 var level = match.Groups[1].Length;
                 var text = match.Groups[2].Value.Trim();
-                var id = Slugify(text, headings);
+                var id = Slugify(StripBracketPrefix(text), headings);
                 headings.Add((id, text, level));
                 lines[i] = $"{match.Groups[1].Value} {text} {{#{id}}}";
                 continue;
@@ -177,7 +177,7 @@ public class MarkdownService
                         var text = StripInlineMarkdown(prev);
                         if (!string.IsNullOrEmpty(text))
                         {
-                            var id = Slugify(text, headings);
+                            var id = Slugify(StripBracketPrefix(text), headings);
                             headings.Add((id, text, setextLevel));
                             lines[i-1] = $"{lines[i-1]} {{#{id}}}";
                         }
@@ -186,6 +186,12 @@ public class MarkdownService
             }
         }
         return string.Join('\n', lines);
+    }
+
+    private static string StripBracketPrefix(string text)
+    {
+        var result = Regex.Replace(text, @"^\[.*?\]\s*", "");
+        return string.IsNullOrWhiteSpace(result) ? text : result;
     }
 
     private static string StripInlineMarkdown(string text)
@@ -201,7 +207,8 @@ public class MarkdownService
 
     private static string Slugify(string text, List<(string id, string, int)> existing)
     {
-        var id = Regex.Replace(text.ToLowerInvariant(), @"[^a-z0-9一-鿿]+", "-").Trim('-');
+        var cleaned = Regex.Replace(text, @"[　-〿（）［］｛｝—–―…·]+", "");
+        var id = Regex.Replace(cleaned.ToLowerInvariant(), @"[^a-z0-9一-鿿]+", "-").Trim('-');
         if (string.IsNullOrEmpty(id)) id = "heading";
         var original = id;
         int suffix = 1;
