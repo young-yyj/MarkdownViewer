@@ -62,4 +62,4 @@ MarkdownViewer/
 
 ## 许可证 / License
 
-MIT
+[MIT](LICENSE)
