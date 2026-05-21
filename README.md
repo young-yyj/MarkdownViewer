@@ -15,6 +15,7 @@ A desktop Markdown preview tool built with WPF (.NET 8) and WebView2.
 - **代码块复制 / Code block copy** — 每个代码块都有一键复制按钮 / one-click copy button on every code block
 - **阅读时间估算 / Read time estimate** — 状态栏显示预估阅读时长 / displayed in the status bar
 - **大文件提示 / File size warning** — 超过 5MB 的文件打开前弹出确认 / prompts for files over 5MB
+- **单实例运行 / Single instance** — 新启动实例将文件路径转发到已有窗口 / new instances forward file paths to the existing window
 
 ## 技术栈 / Tech Stack
 
@@ -42,7 +43,7 @@ dotnet publish -c Release
 | `Ctrl + W` | 关闭当前标签页 / Close current tab |
 | `Ctrl + Tab` | 下一个标签页 / Next tab |
 | `Ctrl + Shift + Tab` | 上一个标签页 / Previous tab |
-| `Ctrl + T` | 切换目录侧栏 / Toggle TOC sidebar |
+| `Ctrl + Shift + T` | 切换目录侧栏 / Toggle TOC sidebar |
 | `Ctrl + Wheel` | 放大/缩小 / Zoom in/out |
 | `Ctrl + 0` | 重置缩放为 100% / Reset zoom to 100% |
 
@@ -50,14 +51,15 @@ dotnet publish -c Release
 
 ```
 MarkdownViewer/
-├── App.xaml.cs           — 应用入口，主题初始化 / Application entry, theme initialization
-├── MainWindow.xaml/.cs   — 主窗口 UI 及事件处理 / Main window UI and event handling
-├── Converters/           — WPF 值转换器 / WPF value converters
-├── Models/               — 数据模型 (TabItem, TocHeading, RecentFileEntry) / Data models
-├── Services/             — MarkdownService (解析), RecentFilesService (最近文件)
-├── ViewModels/           — MainViewModel, RelayCommand, ObservableObject
-├── Resources/            — 内嵌 CSS (暗色/亮色), logo.ico / Embedded CSS (dark/light), logo.ico
-└── Themes/               — WPF 资源字典 (Dark.xaml, Light.xaml) / WPF resource dictionaries
+└── src/
+    ├── App.xaml.cs           — 应用入口，单实例检测、主题初始化 / Entry, single-instance, theme
+    ├── MainWindow.xaml/.cs   — 主窗口 UI 及事件处理 / Main window UI and event handling
+    ├── Converters/           — WPF 值转换器 / WPF value converters
+    ├── Models/               — 数据模型 (TabItem, TocHeading, RecentFileEntry) / Data models
+    ├── Services/             — MarkdownService (解析), RecentFilesService (最近文件)
+    ├── ViewModels/           — MainViewModel, RelayCommand, ObservableObject
+    ├── Resources/            — 内嵌 CSS (暗色/亮色), logo.ico / Embedded CSS (dark/light), logo.ico
+    └── Themes/               — WPF 资源字典 (Dark.xaml, Light.xaml) / WPF resource dictionaries
 ```
 
 ## 许可证 / License

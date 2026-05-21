@@ -11,7 +11,7 @@ Windows 桌面 Markdown 预览工具 — WPF (.NET 8) + WebView2 + Markdig。纯
 
 **技术栈**：.NET 8 WPF + WebView2 1.0.3912.50 + Markdig 1.1.3
 
-**架构**：`MainWindow.xaml/.cs` → `MainViewModel`（事件: NavigateRequested / TocScrollRequested / ThemeChanged） → `MarkdownService` / `RecentFilesService` → `TabItem` / `TocHeading` / `RecentFileEntry`
+**架构**：`App.xaml.cs`（Mutex 单实例 + NamedPipe IPC）→ `MainWindow.xaml/.cs` → `MainViewModel`（事件: NavigateRequested / TocScrollRequested / ThemeChanged） → `MarkdownService` / `RecentFilesService` → `TabItem` / `TocHeading` / `RecentFileEntry`
 
 **构建**：`dotnet build` / `dotnet run` / `dotnet publish -c Release`（独立单文件 win-x64）
 
@@ -20,4 +20,5 @@ Windows 桌面 Markdown 预览工具 — WPF (.NET 8) + WebView2 + Markdig。纯
 - CSS 为 EmbeddedResource，通过 `GetManifestResourceStream()` 加载
 - WebView2 ↔ WPF 通过 `window.chrome.webview.postMessage()` 通信（toc-scroll / zoom / link-click）
 - 持久化目录：`%AppData%/MarkdownViewer/`（settings.json、recent.json、WebView2/）
+- Named Pipe IPC（`MarkdownViewer_IPC_Pipe`）：第二个实例将命令行参数转发给已有实例后退出
 - 不写 Co-Authored-By，不执行 git push

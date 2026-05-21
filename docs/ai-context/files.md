@@ -8,9 +8,9 @@
 |---|---|
 | `MarkdownViewer.csproj` | 项目文件。目标 `net8.0-windows`，PublishSingleFile + SelfContained win-x64。版本 1.1.0。NuGet：Markdig、Microsoft.Web.WebView2。CSS 文件设为 EmbeddedResource。 |
 | `App.xaml` | 应用定义。默认加载 `Themes/Dark.xaml` 作为合并字典。全局 Button cursor=Hand。 |
-| `App.xaml.cs` | 启动入口：检测主题（settings.json → 注册表 → 默认暗色）。`SwitchTheme(bool)`：热替换 MergedDictionaries[0]。`SaveThemePreference()`：写入 JSON。 |
+| `App.xaml.cs` | 启动入口。`OnStartup`：Mutex 单实例检测 → 已有实例则 ForwardToExistingInstance() 通过 NamedPipe 转发参数后退出。`StartPipeServer()`：后台 Task 循环监听 IPC 管道，收到文件路径后调度到主窗口。`SwitchTheme(bool)`：热替换 MergedDictionaries[0]。`SaveThemePreference()`：写入 JSON。 |
 | `MainWindow.xaml` | 完整 UI 布局：工具栏（打开/最近文件/目录/主题切换）、最近文件弹出菜单、标签栏、目录侧栏、WebView2 内容区、落地页、状态栏。所有颜色使用 `{DynamicResource}`。 |
-| `MainWindow.xaml.cs` | Code-behind。WebView2 初始化（自定义 UDF 路径）。事件桥接：VM 事件 → WebView2 导航。WebMessageReceived：分发 toc-scroll/zoom/link-click 消息。键盘快捷键：Ctrl+Tab/Shift+Tab/W。拖放。最近文件弹出菜单切换。 |
+| `MainWindow.xaml.cs` | Code-behind。WebView2 初始化（自定义 UDF 路径）。事件桥接：VM 事件 → WebView2 导航。WebMessageReceived：分发 toc-scroll/zoom/link-click 消息。键盘快捷键：Ctrl+Tab/Shift+Tab/W。拖放。最近文件弹出菜单切换。`BringToForeground()`：IPC 激活窗口。`LoadFileFromIpc(filePath)`：IPC 转发文件加载。 |
 | `AssemblyInfo.cs` | WPF 主题信息属性。 |
 
 ## Converters（`src/Converters/`）

@@ -4,7 +4,7 @@
 
 MarkdownViewer 是一款 Windows 桌面 Markdown 预览工具，纯查看器，无编辑功能。
 
-**核心链路**：WPF 窗口 → MainViewModel 管理状态 → MarkdownService 解析 Markdown / RecentFilesService 持久化 → WebView2 渲染 HTML。
+**核心链路**：App（Mutex 单实例 + NamedPipe IPC）→ WPF 窗口 → MainViewModel 管理状态 → MarkdownService 解析 Markdown / RecentFilesService 持久化 → WebView2 渲染 HTML。
 
 ## 技术栈
 
@@ -23,7 +23,7 @@ MarkdownViewer 是一款 Windows 桌面 Markdown 预览工具，纯查看器，�
 │  View: MainWindow.xaml + MainWindow.xaml.cs       │
 │  - XAML 数据绑定到 MainViewModel                   │
 │  - Code-behind: WebView2 生命周期、拖放、          │
-│    键盘快捷键、事件桥接                            │
+│    键盘快捷键、事件桥接、BringToForeground         │
 └──────────────┬───────────────────────────────────┘
                │ DataContext 绑定
                │ 事件: NavigateRequested、TocScrollRequested、ThemeChanged
@@ -103,6 +103,24 @@ JS Ctrl+滚轮 → postMessage({type:'zoom', level})
   → MainWindow 存储 _currentZoom（double）
     → 切换标签页时：NavigationCompleted 事件中
       → ExecuteScriptAsync("document.body.style.zoom = {_currentZoom}")
+```
+
+### 5. 单实例 IPC
+
+```
+App.OnStartup()
+  → Mutex("MarkdownViewer_SingleInstance", out createdNew)
+    → createdNew == false（已有实例在运行）
+      → ForwardToExistingInstance(args)
+        → NamedPipeClientStream 连接 "MarkdownViewer_IPC_Pipe"
+        → 通过 StreamWriter 发送命令行参数（换行分隔）
+        → Shutdown()，退出
+    → createdNew == true（首个实例）
+      → StartPipeServer()
+        → Task.Run 后台循环监听 NamedPipeServerStream
+        → 收到连接 → Dispatcher.BeginInvoke
+          → MainWindow.BringToForeground()（恢复/激活窗口）
+          → MainWindow.LoadFileFromIpc(filePath)（逐个打开文件）
 ```
 
 ## 键盘快捷键

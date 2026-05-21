@@ -61,6 +61,23 @@ public partial class MainWindow : Window
             if (File.Exists(filePath))
                 VM.LoadFile(filePath);
         }
+
+    }
+
+    public void BringToForeground()
+    {
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        Activate();
+        Topmost = true;
+        Topmost = false;
+        Focus();
+    }
+
+    public void LoadFileFromIpc(string filePath)
+    {
+        if (File.Exists(filePath))
+            VM.LoadFile(filePath);
     }
 
     private void OnThemeChanged(object? sender, EventArgs e)

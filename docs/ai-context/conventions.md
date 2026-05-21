@@ -91,6 +91,14 @@ public bool IsActive
 - `dotnet publish -c Release` — 独立单文件 exe，目标 win-x64。输出：`src/bin/Release/net8.0-windows/win-x64/publish/win-x64/MarkdownViewer.exe`
 - 发布配置文件位于 `src/Properties/PublishProfiles/FolderProfile.pubxml`
 
+## 单实例 IPC
+
+- `App.xaml.cs` 使用命名 Mutex (`MarkdownViewer_SingleInstance`) 检测已有实例
+- 第二个实例通过 `NamedPipeClientStream` 连接管道 `MarkdownViewer_IPC_Pipe`，发送命令行参数后 `Shutdown()`
+- 首个实例在后台 Task 中循环监听 `NamedPipeServerStream`，收到消息后通过 `Dispatcher.BeginInvoke` 调度到 UI 线程
+- `MainWindow.BringToForeground()` 将窗口恢复/置顶/聚焦；`LoadFileFromIpc()` 逐个加载转发来的文件
+- IPC 异常静默吞掉（catch without log）—— 转发失败不影响主实例运行
+
 ## Git
 
 - 分支：`master`
